@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"fmt"
+	"math"
 	"sort"
 	"testing"
 
@@ -58,40 +58,60 @@ func (c *Calculator) Packs(totalItems int) []Pack {
 		factors[v] = 0
 	}
 
-	for i := len(c.config.packs) - 1; i >= 0; i-- {
-		div := totalItems / c.config.packs[i]
-		if div > 0 {
-			factors[c.config.packs[i]] = div
-			totalItems -= c.config.packs[i] * div
+	for totalItems > 0 {
+		if totalItems < minItemsPerUnit {
+			factors[minItemsPerUnit]++
+			totalItems -= minItemsPerUnit
+			continue
+		}
+		clst := findClosest(totalItems, c.config.packs)
+
+		div := totalItems / clst
+		mod := totalItems % clst
+
+		if mod != 0 {
+			// see if clst + minItemsPerUnit exists in factors
+			if _, ok := factors[clst+minItemsPerUnit]; ok {
+				factors[clst+minItemsPerUnit]++
+				totalItems -= clst + minItemsPerUnit
+			} else {
+				factors[clst]++
+				totalItems -= clst
+			}
+		} else {
+			factors[clst] += div
+			totalItems = totalItems - div*clst
 		}
 	}
-	if totalItems > 0 {
-		factors[minItemsPerUnit]++
-	}
 
-	fmt.Println(factors)
-
-	// regulate factors
-	// if we have 250 X 2 and 250 X 2 exists as pack size use that one
-	if factors[minItemsPerUnit] > 1 {
-		sizeToCheck := factors[minItemsPerUnit] * minItemsPerUnit
-		if _, ok := factors[sizeToCheck]; ok {
-			factors[sizeToCheck]++
-			factors[minItemsPerUnit] = 0
-		}
-	}
-
-	var packs []Pack
-	for items, qty := range factors {
-		if qty > 0 {
-			packs = append(packs, Pack{
-				Qty:          qty,
-				ItemsPerUnit: items,
+	var ps []Pack
+	for k, v := range factors {
+		if v > 0 {
+			ps = append(ps, Pack{
+				Qty:          v,
+				ItemsPerUnit: k,
 			})
 		}
 	}
 
-	return packs
+	return ps
+}
+
+func findClosest(target int, s []int) int {
+	closest := math.MaxInt
+	for _, v := range s {
+		if absDiff(v, target) < absDiff(target, closest) {
+			closest = v
+		}
+	}
+	return closest
+}
+
+func absDiff(a, b int) int {
+	if a > b {
+		return a - b
+	}
+	return b - a
 }
 
 func TestCalculator(t *testing.T) {
