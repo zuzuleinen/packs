@@ -26,20 +26,16 @@ func CalculatePacks(packSizeRepo *db.PackSizeRepository) http.Handler {
 				return
 			}
 
-			dbSizes := packSizeRepo.FindAll()
-
 			cfg := domain.NewConfig()
-			for _, v := range dbSizes {
+			for _, v := range packSizeRepo.FindAll() {
 				cfg.AddPackSize(v.Size)
 			}
 
-			calculator := domain.NewCalculator(cfg)
-
-			calculatedPacks := calculator.Packs(itemsNo)
+			calc := domain.NewCalculator(cfg)
+			calculatedPacks := calc.Packs(itemsNo)
 
 			var resp calculatePacksResponse
 			resp.Packs = make([]pack, 0)
-
 			for _, v := range calculatedPacks {
 				resp.Packs = append(resp.Packs, pack{
 					Qty:          v.Qty,
