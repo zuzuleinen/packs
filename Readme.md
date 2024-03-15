@@ -1,4 +1,4 @@
-## About
+## Order Packs Calculator
 
 For sake of simplicity the project uses `sqlite3` as db and a very basic ui. 
 
