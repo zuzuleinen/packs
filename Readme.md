@@ -1,4 +1,6 @@
-## Run the project locally
+## About
+
+For sake of simplicity the project uses `sqlite3` as db and a very basic ui. 
 
 ### Running the app with Docker
 
@@ -35,6 +37,10 @@ identifier.
 ```shell
 curl -X POST -H "Content-Type: application/json" -d '{"packSizes":[250,500,1000,2000,5000]}' http://localhost:8081/api/save-pack-sizes
 ```
+Response:
+```json
+{"success":true,"msg":"Created"}
+```
 
 ### Get all pack sizes:
 
@@ -42,6 +48,7 @@ curl -X POST -H "Content-Type: application/json" -d '{"packSizes":[250,500,1000,
 curl http://localhost:8081/api/pack-sizes
 ```
 
+Response:
 ```json
 {
   "packSizes": [
@@ -59,7 +66,7 @@ curl http://localhost:8081/api/pack-sizes
 ```shell
 curl http://localhost:8081/api/packs/12001
 ```
-
+Response:
 ```json
 {
   "packs": [
