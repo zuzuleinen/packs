@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Pack Sizes</title>
+</head>
+<body>
+<h1>Add Pack Sizes</h1>
+<form id="packSizeForm">
+    <div id="packSizes">
+        <div>
+            <label for="packSize1">Pack Size 1:</label>
+            <input type="number" name="packSize1" id="packSize1" required>
+            <button type="button" onclick="removePackSize(this)">Remove</button>
+        </div>
+    </div>
+    <button type="button" onclick="addPackSize()">Add Pack Size</button>
+    <button type="submit">Submit Pack Size Change</button>
+</form>
+
+<h1>Calculate packs for order</h1>
+<label for="itemNumber">Items:</label>
+<input type="number" id="itemNumber" name="itemNumber">
+<button type="button" onclick="calculatePacks()">Calculate</button>
+
+<div id="packsInfo"></div>
+
+<script>
+    const apiURL = "http://0.0.0.0:8081"
+
+
+    async function calculatePacks() {
+        const itemNumber = document.getElementById('itemNumber').value;
+        try {
+            const response = await fetch(`${apiURL}/api/packs/${itemNumber}`);
+            const data = await response.json();
+            displayPacksInfo(data);
+        } catch (error) {
+            console.error('Error fetching packs:', error);
+        }
+    }
+
+    function displayPacksInfo(data) {
+        const packsInfoDiv = document.getElementById('packsInfo');
+        packsInfoDiv.innerHTML = '';
+
+        const packs = data.packs;
+        if (packs.length === 0) {
+            packsInfoDiv.textContent = 'No packs found for the specified item number.';
+        } else {
+            const packsList = document.createElement('ul');
+            packs.forEach(pack => {
+                const packItem = document.createElement('li');
+                packItem.textContent = `${pack.qty} X ${pack.items_per_unit}`;
+                packsList.appendChild(packItem);
+            });
+            packsInfoDiv.appendChild(packsList);
+        }
+    }
+
+
+    let packSizes = [];
+
+    async function fetchAndPopulatePackSizes() {
+        try {
+            const response = await fetch(`${apiURL}/api/pack-sizes`);
+            const data = await response.json();
+            const packSizesDiv = document.getElementById('packSizes');
+            packSizesDiv.innerHTML = ''; // Clear existing pack size inputs
+
+            data.packSizes.forEach(packSize => {
+                const newPackSizeInput = document.createElement('div');
+                newPackSizeInput.innerHTML = `
+            <label for="packSize">Pack Size:</label>
+            <input type="text" name="packSize" class="packSize" value="${packSize}" required>
+            <button type="button" onclick="removePackSize(this, ${packSize})">Remove</button>
+          `;
+                packSizesDiv.appendChild(newPackSizeInput);
+
+                packSizes.push(packSize);
+            });
+        } catch (error) {
+            console.error('Error fetching pack sizes:', error);
+        }
+    }
+
+
+    function addPackSize() {
+        const packSizesDiv = document.getElementById('packSizes');
+        const newPackSizeInput = document.createElement('div');
+        const index = packSizesDiv.children.length + 1;
+        newPackSizeInput.innerHTML = `
+        <label for="packSize${index}">Pack Size ${index}:</label>
+        <input type="number" name="packSize${index}" id="packSize${index}" required>
+        <button type="button" onclick="removePackSize(this)">Remove</button>
+      `;
+        packSizesDiv.appendChild(newPackSizeInput);
+    }
+
+    function removePackSize(button, value) {
+        const packSizesDiv = document.getElementById('packSizes');
+        button.parentNode.remove();
+        packSizes = packSizes.filter(size => size !== value);
+        // You can log packSizes to see the updated array
+        console.log(packSizes);
+    }
+
+    document.getElementById('packSizeForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+        document.querySelectorAll('[id^="packSize"]').forEach(input => {
+            if (input.value) {
+                packSizes.push(Number(input.value));
+            }
+        });
+        const jsonData = JSON.stringify({packSizes: packSizes});
+        console.log(jsonData);
+
+        fetch(`${apiURL}/api/save-pack-sizes`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: jsonData
+        })
+            .then(response => response.json())
+            .then(data => console.log(data))
+            .catch(error => console.error('Error:', error));
+    });
+
+    fetchAndPopulatePackSizes();
+</script>
+</body>
+</html>
