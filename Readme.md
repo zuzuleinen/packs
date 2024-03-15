@@ -21,6 +21,8 @@ go run main.go
 
 2. Check Health of the API by going to http://0.0.0.0:8081/health. You should see a response "OK"
 
+3. The UI is available at http://0.0.0.0:8081/
+
 ## Run Tests
 
 ```shell
