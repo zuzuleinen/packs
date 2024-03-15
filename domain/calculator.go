@@ -38,21 +38,21 @@ func (c *Calculator) Packs(totalItems int) []Pack {
 			totalItems -= minItemsPerUnit
 			continue
 		}
-		clst := findClosest(totalItems, c.config.sizes)
+		closest := findClosest(totalItems, c.config.sizes)
 
-		quotient := totalItems / clst
+		quotient := totalItems / closest
 
-		if totalItems%clst == 0 {
-			factors[clst] += quotient
-			totalItems -= quotient * clst
+		if totalItems%closest == 0 {
+			factors[closest] += quotient
+			totalItems -= quotient * closest
 		} else {
-			// see if clst + minItemsPerUnit exists in factors
-			if _, ok := factors[clst+minItemsPerUnit]; ok {
-				factors[clst+minItemsPerUnit]++
-				totalItems -= clst + minItemsPerUnit
+			// see if closest + minItemsPerUnit exists in factors
+			if _, ok := factors[closest+minItemsPerUnit]; ok {
+				factors[closest+minItemsPerUnit]++
+				totalItems -= closest + minItemsPerUnit
 			} else {
-				factors[clst]++
-				totalItems -= clst
+				factors[closest]++
+				totalItems -= closest
 			}
 		}
 	}

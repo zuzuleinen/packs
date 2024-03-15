@@ -108,7 +108,7 @@ func addRoutes(mux *http.ServeMux, packSizeRepo *db.PackSizeRepository, logger *
 
 	mux.Handle("POST /api/save-pack-sizes", handlers.SavePackSizesHandler(packSizeRepo))
 	mux.Handle("GET /api/pack-sizes", handlers.GetPackSizes(packSizeRepo))
-	mux.Handle("GET /api/packs/{itemsNo}", handlers.CalculatePacks(packSizeRepo))
+	mux.Handle("GET /api/packs/{itemsNo}", handlers.CalculatePacks(packSizeRepo, logger))
 
 	mux.Handle("/", handlers.UiHandler())
 }

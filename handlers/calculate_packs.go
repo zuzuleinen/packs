@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 
@@ -17,11 +18,12 @@ type calculatePacksResponse struct {
 	Packs []pack `json:"packs"`
 }
 
-func CalculatePacks(packSizeRepo *db.PackSizeRepository) http.Handler {
+func CalculatePacks(packSizeRepo *db.PackSizeRepository, logger *log.Logger) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			itemsNo, err := strconv.Atoi(r.PathValue("itemsNo"))
 			if err != nil {
+				logger.Println("error converting `itemsNo` to integer")
 				jsonError(w, "could not process itemsNo", http.StatusBadRequest)
 				return
 			}
