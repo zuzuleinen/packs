@@ -9,6 +9,12 @@ docker build . -t gymshark
 docker run -p 8081:8081 gymshark
 ```
 
+### Running the app with Docker compose
+
+```shell
+docker compose up -d
+```
+
 ### Running the server locally
 
 To run the server locally you need to have `go` and `sqlite3` installed.
